@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="app_name">CurrentWidget</string>
+<string name="save_button">Save</string>
+<string name="refresh_text">Refresh widget every</string>
+<string-array name="units_array"><item>seconds</item>
+<item>minutes</item>
+</string-array>
+<string name="units_prompt">units</string>
+</resources>
