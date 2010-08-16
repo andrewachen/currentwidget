@@ -125,13 +125,16 @@ public class CurrentWidget extends AppWidgetProvider {
 		boolean success = false;		
 		File f = null;
 		
+		boolean battCurrent = true;
+		
 		try {
-			f = new File("/sys/class/power_supply/battery/current_now");	
+			f = new File("/sys/class/power_supply/battery/batt_current");	
 			
 			if (f.exists())
 				fs = new FileInputStream(f);
 			else {
-				fs = new FileInputStream("/sys/class/power_supply/battery/batt_current");
+				fs = new FileInputStream("/sys/class/power_supply/battery/current_now");
+				battCurrent = false;
 			}				
 			
 
@@ -161,7 +164,8 @@ public class CurrentWidget extends AppWidgetProvider {
 		if (success)
 		{
 			Long value = Long.parseLong(text);
-			value = value/1000; // convert to milliamper
+			if (!battCurrent)
+				value = value/1000; // convert to milliampere
 			if (value < 0)
 			{
 				value = value*(-1);
