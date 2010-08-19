@@ -141,7 +141,7 @@ public class CurrentWidget extends AppWidgetProvider {
 		} catch (FileNotFoundException e) {
 			fs = null;
 			e.printStackTrace();
-			text = "open error";
+			text = "o error";
 		}
 		
 		
@@ -156,7 +156,7 @@ public class CurrentWidget extends AppWidgetProvider {
 				fs.close();
 				success = true;
 			} catch (IOException e) {
-				text = "read/close error";
+				text = "r error";
 				e.printStackTrace();
 			}
 		}		
@@ -169,10 +169,10 @@ public class CurrentWidget extends AppWidgetProvider {
 			if (value < 0)
 			{
 				value = value*(-1);
-				remoteViews.setTextColor(R.id.text, Color.WHITE); // drawing
+				//remoteViews.setTextColor(R.id.text, Color.WHITE); // drawing
 			}
-			else
-				remoteViews.setTextColor(R.id.text, Color.rgb(162, 255, 0)); // charging
+			/*else
+				remoteViews.setTextColor(R.id.text, Color.rgb(162, 255, 0)); // charging*/
 				
 			
 			text = value.toString() + "mA";
