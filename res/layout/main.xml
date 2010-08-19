@@ -18,24 +18,36 @@
 		    android:text="0mA"
 		    android:background="@android:color/transparent"
 		    android:textColor="#757876"
-		    android:textSize="18sp"
+		    android:textSize="16sp"
 		    android:textStyle="bold"
 		    />
         
 	    <TextView 
+	    	android:id="@+id/Text01"
+		    android:layout_width="wrap_content" 
+		    android:layout_height="10dp"
+		    android:gravity="center" 
+		    android:text="Last update"
+		    android:background="@android:color/transparent"
+		    android:textColor="#3e6eb4"
+		    android:textSize="8sp"
+		    />        
+		    
+	    <TextView 
 	    	android:id="@+id/last_updated_text"
 		    android:layout_width="wrap_content" 
-		    android:layout_height="24dp"
-		    android:gravity="bottom" 
+		    android:layout_height="16dp"
+		    android:gravity="top" 
 		    android:text=""
 		    android:background="@android:color/transparent"
 		    android:textColor="#3e6eb4"
 		    android:textSize="13sp"
 		    />
     
-	<Button android:text="@string/update_now_button" android:textColor="#757876" 
+	<Button android:text="@string/update_now_button" android:textColor="#454846" 
 	android:id="@+id/update_now_button" android:layout_width="wrap_content" android:gravity="center"
-	android:layout_height="24dp" android:textSize="10sp" android:background="@android:color/transparent"></Button>    	
+	android:textStyle="bold"
+	android:layout_height="24dp" android:textSize="8sp" android:background="@android:color/transparent"></Button>    	
 
       
 </LinearLayout>
