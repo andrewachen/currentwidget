@@ -3,10 +3,12 @@
  */
 package com.manor.currentwidget;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -113,29 +115,70 @@ public class CurrentWidget extends AppWidgetProvider {
 	static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId, long secondsInterval) {
 		
 		
+		// set on click for whole layout to launch configuration
 		RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.main);
 		Intent configIntent = new Intent(context, CurrentWidgetConfigure.class);		
 		configIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 		configIntent.setData(Uri.withAppendedPath(Uri.parse("droidrm://widget/id/"), String.valueOf(appWidgetId)));
         PendingIntent configPendingIntent = PendingIntent.getActivity(context, appWidgetId, configIntent, 0);
-        remoteViews.setOnClickPendingIntent(R.id.linear_layout, configPendingIntent);	               
+        remoteViews.setOnClickPendingIntent(R.id.linear_layout, configPendingIntent);        
+      
 		
 		FileInputStream fs = null;
 		String text = null;
 		boolean success = false;		
 		File f = null;
 		
-		boolean battCurrent = true;
+		boolean convertToMillis = false;
+		boolean readLine = true;
 		
 		try {
-			f = new File("/sys/class/power_supply/battery/batt_current");	
+			
+			f = new File("/sys/class/power_supply/battery/smem_text");				
 			
 			if (f.exists())
-				fs = new FileInputStream(f);
-			else {
-				fs = new FileInputStream("/sys/class/power_supply/battery/current_now");
-				battCurrent = false;
-			}				
+			{
+				try 
+				{
+					readLine = false;
+					FileReader fr = new FileReader(f);
+					BufferedReader br = new BufferedReader(fr);	
+					
+					String line = br.readLine();
+					while (line != null) 
+					{
+						if (line.contains("I_MBAT"))
+						{
+							text = line.substring(line.indexOf("I_MBAT: "));
+							success = true;
+							break;
+						}
+						line = br.readLine();
+					}
+					
+					if (!success)
+						text = "r_error";
+					
+					
+					br.close();
+					fr.close();
+				}
+				catch (IOException ioe)
+				{
+					
+				}
+				
+			}
+			else
+			{
+				f = new File("/sys/class/power_supply/battery/batt_current");	
+				if (f.exists())
+					fs = new FileInputStream(f);
+				else {
+					fs = new FileInputStream("/sys/class/power_supply/battery/current_now");
+					convertToMillis = true;
+				}
+			}
 			
 
 		} catch (FileNotFoundException e) {
@@ -145,7 +188,7 @@ public class CurrentWidget extends AppWidgetProvider {
 		}
 		
 		
-		if (fs != null)
+		if (fs != null && readLine)
 		{
 			DataInputStream ds = new DataInputStream(fs);
 			
@@ -164,7 +207,7 @@ public class CurrentWidget extends AppWidgetProvider {
 		if (success)
 		{
 			Long value = Long.parseLong(text);
-			if (!battCurrent)
+			if (convertToMillis)
 				value = value/1000; // convert to milliampere
 			if (value < 0)
 			{
@@ -196,12 +239,15 @@ public class CurrentWidget extends AppWidgetProvider {
         PendingIntent newPending = PendingIntent.getBroadcast(context, 0, widgetUpdate,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         
+        // set on click for button
+        remoteViews.setOnClickPendingIntent(R.id.update_now_button, newPending);
+        
         // schedule the new widget for updating
         AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         //alarms.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 5*60*1000, newPending);
         alarms.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + (secondsInterval*1000),
-                secondsInterval * 1000, newPending);
-        
+                secondsInterval * 1000, newPending);        
+       
         appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
 
 
