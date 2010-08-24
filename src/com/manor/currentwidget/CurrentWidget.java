@@ -5,9 +5,11 @@ package com.manor.currentwidget;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -36,17 +38,6 @@ public class CurrentWidget extends AppWidgetProvider {
 	@Override
 	public void onEnabled(Context context) {
 		
-		/*Intent widgetUpdate = new Intent(context, CurrentWidget.class);
-		widgetUpdate.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-		//widgetUpdate.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {3 });
-		
-		PendingIntent sender = PendingIntent.getBroadcast(context, 0, widgetUpdate, 
-				PendingIntent.FLAG_UPDATE_CURRENT);
-		
-		AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
-				10*1000, sender);*/		
-	
 	}
 	
 	@Override
@@ -99,22 +90,22 @@ public class CurrentWidget extends AppWidgetProvider {
 	}
 	
 	@Override
-	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {		
-	
-		SharedPreferences settings = context.getSharedPreferences("currentWidgetPrefs", 0);
+	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {	
 		
 		 for (int appWidgetId : appWidgetIds) {
-			 //Log.i("CurrentWidget", String.format("onUpdate, id: %s", Integer.toString(appWidgetId)));			 
-			 
-			 long secondsInterval = settings.getLong("secondsInterval" + appWidgetId, 60);			 
-				
-			 updateAppWidget(context, AppWidgetManager.getInstance(context), appWidgetId, secondsInterval);			 
+			 //Log.i("CurrentWidget", String.format("onUpdate, id: %s", Integer.toString(appWidgetId))); 
+			 	
+			 updateAppWidget(context, AppWidgetManager.getInstance(context), appWidgetId);			 
 
 		 }
 	}
 	
-	static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId, long secondsInterval) {
+	static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 		
+		SharedPreferences settings = context.getSharedPreferences("currentWidgetPrefs", 0);
+		
+		long secondsInterval = settings.getLong(CurrentWidgetConfigure.SECOND_INTERVAL_SETTING + appWidgetId, 60);
+		 
 		
 		// set on click for whole layout to launch configuration
 		RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.main);
@@ -207,9 +198,11 @@ public class CurrentWidget extends AppWidgetProvider {
 			}
 		}		
 		
+		Long value = null;
+		boolean isCharging = true;
+		
 		if (success)
-		{
-			Long value = null;
+		{			
 			try
 			{
 				value = Long.parseLong(text);
@@ -221,10 +214,12 @@ public class CurrentWidget extends AppWidgetProvider {
 			
 			if (convertToMillis)
 				value = value/1000; // convert to milliampere
+			
 			if (value < 0)
 			{
 				value = value*(-1);
 				remoteViews.setTextColor(R.id.text, Color.rgb(117, 120, 118)); // drawing
+				isCharging = false;
 			}
 			else
 				remoteViews.setTextColor(R.id.text, Color.rgb(100, 168, 0)); // charging
@@ -232,14 +227,38 @@ public class CurrentWidget extends AppWidgetProvider {
 			
 			text = value.toString() + "mA";
 			
-		}		
+		}	
+		
 		
 		remoteViews.setTextViewText(R.id.text, text);
 		
-		// set last updated	
-		
+		// set last update
 		remoteViews.setTextViewText(R.id.last_updated_text, (new SimpleDateFormat("HH:mm:ss")).format(new Date()));
 		
+		// write to log file
+		if (settings.getBoolean(CurrentWidgetConfigure.LOG_ENABLED_SETTING + appWidgetId, false)) {
+			
+			try {
+				FileOutputStream logFile = new FileOutputStream(settings.getString(CurrentWidgetConfigure.LOG_FILENAME_SETTING + appWidgetId, "/sdcard/currentwidget.log"), true);
+				DataOutputStream logOutput = new DataOutputStream(logFile);
+				
+				String str = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()) + " ";
+				if (!isCharging)
+					str += "-";
+				
+				str += text + "\r\n";
+				
+				logOutput.writeBytes(str);
+				
+				logOutput.close();
+				logFile.close();
+			}
+			catch (Exception ex) {
+				Log.e("CurrentWidget", ex.getMessage());
+			}
+			
+		}
+
         Intent widgetUpdate = new Intent(context, CurrentWidget.class);
         widgetUpdate.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] { appWidgetId } );
         widgetUpdate.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);

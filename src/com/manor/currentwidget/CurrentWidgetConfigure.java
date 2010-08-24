@@ -8,13 +8,21 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class CurrentWidgetConfigure extends Activity {
 
 	int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+	
+	public final static String LOG_ENABLED_SETTING = "logEnabled";
+	public final static String LOG_FILENAME_SETTING = "logFilename";
+	public final static String SECOND_INTERVAL_SETTING = "secondsInterval";
+	public final static String UNITS_SETTING = "units";
 	
 	public CurrentWidgetConfigure() {
 		super();
@@ -47,16 +55,45 @@ public class CurrentWidgetConfigure extends Activity {
 			finish();
 		}
 		
-		EditText intervalEdit = (EditText)findViewById(R.id.interval_edit);		
 		SharedPreferences settings = getSharedPreferences("currentWidgetPrefs", 0);
-		long interval = settings.getLong("secondsInterval" + mAppWidgetId, 60);
-		int unit = settings.getInt("units" + mAppWidgetId, 1);
+		
+		long interval = settings.getLong(SECOND_INTERVAL_SETTING + mAppWidgetId, 60);
+		int unit = settings.getInt(UNITS_SETTING + mAppWidgetId, 1);
 		if (unit == 1)
 			interval/=60;
 		
 		unitsSpinner.setSelection(unit);
+		
+		EditText intervalEdit = (EditText)findViewById(R.id.interval_edit);
 		intervalEdit.setText(Long.toString(interval));
+		
+		boolean logEnabled = settings.getBoolean(LOG_ENABLED_SETTING + mAppWidgetId, false);
+		String logFilename = settings.getString(LOG_FILENAME_SETTING + mAppWidgetId, "/sdcard/currentwidget.log");
+		
+		CheckBox logCheckbox = (CheckBox) findViewById(R.id.log_checkbox);
+		logCheckbox.setChecked(logEnabled);
+		
+		EditText logFilenameEdit = (EditText)findViewById(R.id.log_filename);
+		
+		logFilenameEdit.setText(logFilename);
+		logFilenameEdit.setEnabled(logEnabled);
+		
+		logCheckbox.setOnCheckedChangeListener(mOnCheckedChangeListener);			
+		
 	}
+	
+	CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener = new OnCheckedChangeListener() {
+		
+		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+			
+			switch(buttonView.getId()) {
+				case R.id.log_checkbox:
+					findViewById(R.id.log_filename).setEnabled(isChecked);
+					break;
+			}
+			
+		}
+	};
 	
 	View.OnClickListener mOnSaveClickListener = new View.OnClickListener() {	
 		
@@ -81,12 +118,15 @@ public class CurrentWidgetConfigure extends Activity {
 					
 					SharedPreferences settings = getSharedPreferences("currentWidgetPrefs", 0);
 					SharedPreferences.Editor editor = settings.edit();
-					editor.putLong("secondsInterval" + mAppWidgetId, interval);
-					editor.putInt("units" + mAppWidgetId, selectedUnit);
+					editor.putLong(SECOND_INTERVAL_SETTING + mAppWidgetId, interval);
+					editor.putInt(UNITS_SETTING + mAppWidgetId, selectedUnit);
+					editor.putBoolean(LOG_ENABLED_SETTING + mAppWidgetId, ((CheckBox)findViewById(R.id.log_checkbox)).isChecked());
+					editor.putString(LOG_FILENAME_SETTING + mAppWidgetId, ((EditText)findViewById(R.id.log_filename)).getText().toString());			
+					
 					editor.commit();					
 					
 					CurrentWidget.updateAppWidget(context, AppWidgetManager.getInstance(context), 
-							mAppWidgetId, interval);
+							mAppWidgetId);
 					
 					Intent resultValue = new Intent();
 					resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
