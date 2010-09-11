@@ -12,18 +12,22 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Bitmap.Config;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,7 +41,6 @@ public class CurrentWidget extends AppWidgetProvider {
 	
 	@Override
 	public void onEnabled(Context context) {
-		
 	}
 	
 	@Override
@@ -92,6 +95,43 @@ public class CurrentWidget extends AppWidgetProvider {
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {	
 		
+		/*Bitmap b1 = BitmapFactory.decodeResource(context.getResources(), R.drawable.five);
+		Bitmap b2 = BitmapFactory.decodeResource(context.getResources(), R.drawable.three);
+		Bitmap b3 = BitmapFactory.decodeResource(context.getResources(), R.drawable.nine);
+		
+		Bitmap newBitmap = Bitmap.createBitmap(b1.getWidth() + b2.getWidth() + b3.getWidth(), 
+				b1.getHeight() + b2.getHeight() + b3.getHeight(),
+				b1.getConfig());
+		
+		int[] pixels = new int[newBitmap.getWidth()*newBitmap.getHeight()];
+		b1.getPixels(pixels, 0, 0, 0, 0, b1.getWidth(), b1.getHeight());
+		b2.getPixels(pixels, b1.getHeight()*b1.getWidth(), 0, 0, 0, b2.getWidth(), b2.getHeight());
+		b3.getPixels(pixels, (b1.getHeight()*b1.getWidth())+(b2.getHeight()*b2.getWidth()), 0, 0, 0, b3.getWidth(),
+				b3.getHeight());
+		
+		newBitmap.setPixels(pixels, 0, 0, 0, 0, newBitmap.getWidth(), newBitmap.getHeight());
+		
+		b1.recycle();
+		b2.recycle();
+		b3.recycle();
+		
+		String ns = Context.NOTIFICATION_SERVICE;
+		NotificationManager notificationManager = (NotificationManager)context.getSystemService(ns);
+		int icon = R.drawable.icon;
+		CharSequence tickerText = "CurrentWidget";
+		
+		
+		Notification notification = new Notification(icon, tickerText, System.currentTimeMillis());
+		
+		CharSequence contentTitle = "My notification";
+		CharSequence contentText = "Hello World!";
+		Intent notificationIntent = new Intent(context, CurrentWidget.class);
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+		
+		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);		
+
+		notificationManager.notify(1,notification);*/
+
 		 for (int appWidgetId : appWidgetIds) {
 			 //Log.i("CurrentWidget", String.format("onUpdate, id: %s", Integer.toString(appWidgetId))); 
 			 	
@@ -116,117 +156,33 @@ public class CurrentWidget extends AppWidgetProvider {
         remoteViews.setOnClickPendingIntent(R.id.linear_layout, configPendingIntent);        
       
 		
-		FileInputStream fs = null;
 		String text = null;
-		boolean success = false;		
-		File f = null;
-		
-		boolean convertToMillis = false;
-		boolean readLine = true;
-		
-		try {
-			
-			f = new File("/sys/class/power_supply/battery/smem_text");				
-			
-			if (f.exists())
-			{
-				try 
-				{
-					readLine = false;
-					// @@@ debug StringReader fr = new StringReader("batt_id: 1\r\nbatt_vol: 3840\r\nbatt_vol_last: 0\r\nbatt_temp: 1072\r\nbatt_current: 1\r\nbatt_current_last: 0\r\nbatt_discharge_current: 112\r\nVREF_2: 0\r\nVREF: 1243\r\nADC4096_VREF: 4073\r\nRtemp: 70\r\nTemp: 324\r\nTemp_last: 0\r\npd_M: 20\r\nMBAT_pd: 3860\r\nI_MBAT: -114\r\npd_temp: 0\r\npercent_last: 57\r\npercent_update: 58\r\ndis_percent: 64\r\nvbus: 0\r\nusbid: 1\r\ncharging_source: 0\r\nMBAT_IN: 1\r\nfull_bat: 1300000\r\neval_current: 115\r\neval_current_last: 0\r\ncharging_enabled: 0\r\ntimeout: 30\r\nfullcharge: 0\r\nlevel: 58\r\ndelta: 1\r\nchg_time: 0\r\nlevel_change: 0\r\nsleep_timer_count: 11\r\nOT_led_on: 0\r\noverloading_charge: 0\r\na2m_cable_type: 0\r\nover_vchg: 0\r\n");
-					FileReader fr = new FileReader(f);
-					BufferedReader br = new BufferedReader(fr);	
-					
-					String line = br.readLine();
-					while (line != null) 
-					{
-						if (line.contains("I_MBAT"))
-						{
-							text = line.substring(line.indexOf("I_MBAT: ") + 8);
-							success = true;
-							break;
-						}
-						line = br.readLine();
-					}
-					
-					if (!success)
-						text = "r_error";
-					
-					
-					br.close();
-					fr.close();
-				}
-				catch (IOException ioe)
-				{
-					
-				}
-				
-				
-			}
-			else
-			{
-				f = new File("/sys/class/power_supply/battery/batt_current");	
-				if (f.exists())
-					fs = new FileInputStream(f);
-				else {
-					fs = new FileInputStream("/sys/class/power_supply/battery/current_now");
-					convertToMillis = true;
-				}
-			}
-			
-
-		} catch (FileNotFoundException e) {
-			fs = null;
-			e.printStackTrace();
-			text = "o error";
-		}
-		
-		
-		if (fs != null && readLine)
-		{
-			DataInputStream ds = new DataInputStream(fs);
-			
-			
-			try {
-				text = ds.readLine();
-				ds.close();		
-				fs.close();
-				success = true;
-			} catch (IOException e) {
-				text = "r error";
-				e.printStackTrace();
-			}
-		}		
-		
-		Long value = null;
 		boolean isCharging = true;
 		
-		if (success)
+		// @@@ add /sys/class/power_supply/battery/batt_chg_current?
+		ICurrentReader currentReader =  CurrentReaderFactory.getCurrentReader();
+		if (currentReader == null)
+			text = "error1";	
+		else
 		{			
-			try
-			{
-				value = Long.parseLong(text);
-			}
-			catch (NumberFormatException nfe)
-			{
-				value = 0l;
-			}
 			
-			if (convertToMillis)
-				value = value/1000; // convert to milliampere
-			
-			if (value < 0)
-			{
-				value = value*(-1);
-				remoteViews.setTextColor(R.id.text, Color.rgb(117, 120, 118)); // drawing
-				isCharging = false;
-			}
+			Long value = currentReader.getValue();
+			if (value == null)
+				text = "error2";
 			else
-				remoteViews.setTextColor(R.id.text, Color.rgb(100, 168, 0)); // charging
+			{
+				if (value < 0)
+				{
+					value = value*(-1);
+					remoteViews.setTextColor(R.id.text, Color.rgb(117, 120, 118)); // drawing
+					isCharging = false;
+				}
+				else
+					remoteViews.setTextColor(R.id.text, Color.rgb(100, 168, 0)); // charging
+					
 				
-			
-			text = value.toString() + "mA";
-			
+				text = value.toString() + "mA";
+			}					
 		}	
 		
 		
@@ -285,3 +241,4 @@ public class CurrentWidget extends AppWidgetProvider {
 	}
 
 }
+
