@@ -23,12 +23,14 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Bitmap.Config;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -140,8 +142,8 @@ public class CurrentWidget extends AppWidgetProvider {
 		 }
 	}
 	
-	static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-		
+	static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {		
+	
 		SharedPreferences settings = context.getSharedPreferences("currentWidgetPrefs", 0);
 		
 		long secondsInterval = settings.getLong(CurrentWidgetConfigure.SECOND_INTERVAL_SETTING + appWidgetId, 60);
@@ -164,8 +166,7 @@ public class CurrentWidget extends AppWidgetProvider {
 		if (currentReader == null)
 			text = "error1";	
 		else
-		{			
-			
+		{	
 			Long value = currentReader.getValue();
 			if (value == null)
 				text = "error2";
@@ -198,11 +199,25 @@ public class CurrentWidget extends AppWidgetProvider {
 				FileOutputStream logFile = new FileOutputStream(settings.getString(CurrentWidgetConfigure.LOG_FILENAME_SETTING + appWidgetId, "/sdcard/currentwidget.log"), true);
 				DataOutputStream logOutput = new DataOutputStream(logFile);
 				
-				String str = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()) + " ";
+				String str = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(new Date()) + ",";
 				if (!isCharging)
 					str += "-";
 				
-				str += text + "\r\n";
+				str += text;
+				
+				// get battery level
+				try {
+					Intent batteryIntent = context.getApplicationContext().registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+					if (batteryIntent != null) {
+						str += "," + String.valueOf(batteryIntent.getIntExtra("level", 0)) + "%";
+					}
+				}
+				catch (Exception ex) {
+					// can't register service from on click
+					str += ",000";
+				}
+				 
+				 str += "\r\n";
 				
 				logOutput.writeBytes(str);
 				
