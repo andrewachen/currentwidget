@@ -25,6 +25,8 @@
 	
 	<EditText android:text="@string/log_filename" android:id="@+id/log_filename" android:layout_width="wrap_content" android:layout_height="wrap_content"></EditText>
 
+	<CheckBox android:text="@string/log_apps_checkbox" android:id="@+id/log_apps_checkbox" android:layout_width="wrap_content" android:layout_height="wrap_content"></CheckBox>
+	
 	<Button android:text="@string/save_button" android:id="@+id/save_button" android:layout_marginTop="10sp" 
 		android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>	
 	

@@ -3,21 +3,15 @@
  */
 package com.manor.currentwidget;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.nio.MappedByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
+import android.app.ActivityManager;
 import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -25,12 +19,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Bitmap.Config;
 import android.net.Uri;
-import android.os.BatteryManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -97,43 +87,6 @@ public class CurrentWidget extends AppWidgetProvider {
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {	
 		
-		/*Bitmap b1 = BitmapFactory.decodeResource(context.getResources(), R.drawable.five);
-		Bitmap b2 = BitmapFactory.decodeResource(context.getResources(), R.drawable.three);
-		Bitmap b3 = BitmapFactory.decodeResource(context.getResources(), R.drawable.nine);
-		
-		Bitmap newBitmap = Bitmap.createBitmap(b1.getWidth() + b2.getWidth() + b3.getWidth(), 
-				b1.getHeight() + b2.getHeight() + b3.getHeight(),
-				b1.getConfig());
-		
-		int[] pixels = new int[newBitmap.getWidth()*newBitmap.getHeight()];
-		b1.getPixels(pixels, 0, 0, 0, 0, b1.getWidth(), b1.getHeight());
-		b2.getPixels(pixels, b1.getHeight()*b1.getWidth(), 0, 0, 0, b2.getWidth(), b2.getHeight());
-		b3.getPixels(pixels, (b1.getHeight()*b1.getWidth())+(b2.getHeight()*b2.getWidth()), 0, 0, 0, b3.getWidth(),
-				b3.getHeight());
-		
-		newBitmap.setPixels(pixels, 0, 0, 0, 0, newBitmap.getWidth(), newBitmap.getHeight());
-		
-		b1.recycle();
-		b2.recycle();
-		b3.recycle();
-		
-		String ns = Context.NOTIFICATION_SERVICE;
-		NotificationManager notificationManager = (NotificationManager)context.getSystemService(ns);
-		int icon = R.drawable.icon;
-		CharSequence tickerText = "CurrentWidget";
-		
-		
-		Notification notification = new Notification(icon, tickerText, System.currentTimeMillis());
-		
-		CharSequence contentTitle = "My notification";
-		CharSequence contentText = "Hello World!";
-		Intent notificationIntent = new Intent(context, CurrentWidget.class);
-		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-		
-		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);		
-
-		notificationManager.notify(1,notification);*/
-
 		 for (int appWidgetId : appWidgetIds) {
 			 //Log.i("CurrentWidget", String.format("onUpdate, id: %s", Integer.toString(appWidgetId))); 
 			 	
@@ -213,8 +166,24 @@ public class CurrentWidget extends AppWidgetProvider {
 					}
 				}
 				catch (Exception ex) {
-					// can't register service from on click
+					// can't register service
 					str += ",000";
+				}
+				
+				if (settings.getBoolean(CurrentWidgetConfigure.LOG_APPS_SETTING + appWidgetId, false)) {
+				
+					ActivityManager activityManager = (ActivityManager)context.getSystemService(context.ACTIVITY_SERVICE);
+					List<ActivityManager.RunningAppProcessInfo> runningApps = activityManager.getRunningAppProcesses();
+					
+					if (runningApps != null)
+					{
+						str += ",";
+						
+						for (int i=0;i<runningApps.size();i++) {
+							str += runningApps.get(i).processName + ";";
+						}				
+					}
+					
 				}
 				 
 				 str += "\r\n";

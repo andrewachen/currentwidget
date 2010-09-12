@@ -23,6 +23,7 @@ public class CurrentWidgetConfigure extends Activity {
 	public final static String LOG_FILENAME_SETTING = "logFilename";
 	public final static String SECOND_INTERVAL_SETTING = "secondsInterval";
 	public final static String UNITS_SETTING = "units";
+	public final static String LOG_APPS_SETTING = "logApps";
 	
 	public CurrentWidgetConfigure() {
 		super();
@@ -78,7 +79,16 @@ public class CurrentWidgetConfigure extends Activity {
 		logFilenameEdit.setText(logFilename);
 		logFilenameEdit.setEnabled(logEnabled);
 		
-		logCheckbox.setOnCheckedChangeListener(mOnCheckedChangeListener);			
+		logCheckbox.setOnCheckedChangeListener(mOnCheckedChangeListener);
+		
+		CheckBox logAppsCheckbox = (CheckBox)findViewById(R.id.log_apps_checkbox);
+		
+		boolean logApps = settings.getBoolean(LOG_APPS_SETTING + mAppWidgetId, false);
+		
+		logAppsCheckbox.setChecked(logApps);
+		logAppsCheckbox.setEnabled(logEnabled);
+		
+		logAppsCheckbox.setOnCheckedChangeListener(mOnCheckedChangeListener);
 		
 	}
 	
@@ -89,6 +99,7 @@ public class CurrentWidgetConfigure extends Activity {
 			switch(buttonView.getId()) {
 				case R.id.log_checkbox:
 					findViewById(R.id.log_filename).setEnabled(isChecked);
+					findViewById(R.id.log_apps_checkbox).setEnabled(isChecked);
 					break;
 			}
 			
@@ -121,7 +132,8 @@ public class CurrentWidgetConfigure extends Activity {
 					editor.putLong(SECOND_INTERVAL_SETTING + mAppWidgetId, interval);
 					editor.putInt(UNITS_SETTING + mAppWidgetId, selectedUnit);
 					editor.putBoolean(LOG_ENABLED_SETTING + mAppWidgetId, ((CheckBox)findViewById(R.id.log_checkbox)).isChecked());
-					editor.putString(LOG_FILENAME_SETTING + mAppWidgetId, ((EditText)findViewById(R.id.log_filename)).getText().toString());			
+					editor.putString(LOG_FILENAME_SETTING + mAppWidgetId, ((EditText)findViewById(R.id.log_filename)).getText().toString());
+					editor.putBoolean(LOG_APPS_SETTING + mAppWidgetId, ((CheckBox)findViewById(R.id.log_apps_checkbox)).isChecked());
 					
 					editor.commit();					
 					
