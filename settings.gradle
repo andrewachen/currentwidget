@@ -1,4 +1,1 @@
-include 'CurrentWidget/', 'CurrentWidgetLibrary/', 'CurrentWidgetLibrary/plugins/AmbilWarna'
-project(':CurrentWidget/').name='widget'
-project(':CurrentWidgetLibrary/').name='lib'
-project(':CurrentWidgetLibrary/plugins/AmbilWarna').name='plugins-AmbilWarna'
+include ':CurrentWidget', ':CurrentWidgetLibrary', ':CurrentWidgetLibrary:plugins:AmbilWarna'

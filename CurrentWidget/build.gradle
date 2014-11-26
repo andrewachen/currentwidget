@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-    compile project(':lib')
+    compile project(':CurrentWidgetLibrary')
 }
 
 android {
