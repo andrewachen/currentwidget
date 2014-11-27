@@ -117,13 +117,21 @@ public class Updater extends BroadcastReceiver {
 					notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					PendingIntent contentIntent = PendingIntent.getActivity(context.getApplicationContext(), 0, notificationIntent, 0);
 
-					Notification notification = new NotificationCompat.Builder(context)
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 						.setContentTitle("CurrentWidget")
 						.setContentText("CurrentWidget detected a high current usage")
 						.setSmallIcon(R.drawable.icon)
 						.setContentIntent(contentIntent)
-						.build();
+                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
+                    // If running Lollipop or higher, use the vector + accent color version of the icon.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        builder
+                            .setSmallIcon(R.drawable.icon_vector)
+                            .setColor(context.getResources().getColor(R.color.notification_accent_color));
+                    }
+
+                    Notification notification = builder.build();
 					notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
 					/*notification.setLatestEventInfo(context.getApplicationContext(), 
@@ -159,14 +167,23 @@ public class Updater extends BroadcastReceiver {
 		notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		PendingIntent contentIntent = PendingIntent.getActivity(context.getApplicationContext(), 0, notificationIntent, 0);
 
-		Notification notification = new NotificationCompat.Builder(context)
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
 			.setContentTitle("CurrentWidget")
 			.setContentText(notification_text)
 			.setSmallIcon(R.drawable.icon)
 			.setContentIntent(contentIntent)
-			.build();
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setShowWhen(false);
 
-		notification.flags |= Notification.FLAG_NO_CLEAR;
+        // If running Lollipop or higher, use the vector + accent color version of the icon.
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder
+                .setSmallIcon(R.drawable.icon_vector)
+                .setColor(context.getResources().getColor(R.color.notification_accent_color));
+        }
+
+        Notification notification = builder.build();
+        notification.flags |= Notification.FLAG_NO_CLEAR;
 
 		NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.notify(INFO_NOTIFICATION_ID, notification);	
