@@ -128,7 +128,7 @@ public class Updater extends BroadcastReceiver {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         builder
                             .setSmallIcon(R.drawable.icon_vector)
-                            .setColor(context.getResources().getColor(R.color.notification_accent_color));
+                            .setColor(context.getResources().getColor(R.color.primaryDark));
                     }
 
                     Notification notification = builder.build();
@@ -179,7 +179,7 @@ public class Updater extends BroadcastReceiver {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder
                 .setSmallIcon(R.drawable.icon_vector)
-                .setColor(context.getResources().getColor(R.color.notification_accent_color));
+                .setColor(context.getResources().getColor(R.color.primary));
         }
 
         Notification notification = builder.build();

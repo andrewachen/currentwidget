@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="notification_accent_color">#ff003399</color>
+    <!-- Indigo theme with Orange accent -->
+    <!-- http://www.google.com/design/spec/style/color.html#color-color-palette -->
+    <!-- 700 -->
+    <color name="primary">#ff303f9f</color>
+    <!-- 900 -->
+    <color name="primaryDark">#ff1a237e</color>
+    <!-- A200 -->
+    <color name="accent">#ffff6e40</color>
 </resources>
