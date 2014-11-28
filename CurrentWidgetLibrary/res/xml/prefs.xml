@@ -7,7 +7,8 @@
             android:inputType="number"
             android:key="@string/pref_interval_key"
             android:summary="Number of seconds between widget updates (0 = no auto update)"
-            android:title="Update interval" />
+            android:title="Update interval"
+            android:selectAllOnFocus="true" />
 
         <Preference
             android:key="donate"
