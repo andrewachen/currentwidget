@@ -127,7 +127,7 @@ public class Updater extends BroadcastReceiver {
                     // If running Lollipop or higher, use the vector + accent color version of the icon.
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         builder
-                            .setSmallIcon(R.drawable.icon_vector)
+                            .setSmallIcon(R.drawable.lightning)
                             .setColor(context.getResources().getColor(R.color.primaryDark));
                     }
 
@@ -178,7 +178,7 @@ public class Updater extends BroadcastReceiver {
         // If running Lollipop or higher, use the vector + accent color version of the icon.
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder
-                .setSmallIcon(R.drawable.icon_vector)
+                .setSmallIcon(R.drawable.lightning)
                 .setColor(context.getResources().getColor(R.color.primary));
         }
 
